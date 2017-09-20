@@ -16,6 +16,7 @@
   		textarea {
   			display: block;
   			background-color: #EEEEEE;
+        width: 400px;
   		}
   	</style>
   </head>
@@ -32,12 +33,28 @@
   </body>
   <script type="text/javascript">
 /* eslint-disable */
+    let socket;
+    let user;
+    const send = document.querySelector('#send');
+    const chat = document.querySelector('#chat');
+
+    const messageToSever = (socket) => {
+      let message = document.querySelector('#message');
+
+      socket.emit('msgToServer', message.value);
+
+      //if user changes name change the username inputbox to show change
+      if(message.value.substring(0,11) === '/changeuser'){
+        user = message.value.substring(12);
+      }
+      //clear the message input box after it gets sent
+      message.value = "";
+    };
+
     const connectSocket = (e) => {
-      const user = document.querySelector("#username").value || 'unknown';
-      const send = document.querySelector("#send");
-      const message = document.querySelector('#message');
-      const chat = document.querySelector('#chat');
-      const socket = io.connect();
+      user = document.querySelector('#username').value;
+
+      socket = io.connect();
 
       //listener for msg event
       socket.on('connect', () => {
@@ -51,22 +68,11 @@
         chat.innerHTML += `${data.name}:  ${data.msg}&#10;`;
       });
       // send message to server
-      send.addEventListener('click', () => {
-        console.log(message);
-        console.log(message.value);
-        socket.emit('msgToServer', message.value);
-
-        //if user changes name change the username inputbox to show change
-        if(message.value.substring(0,11) == '/changeuser'){
-          user = message.value.substring(12);
-        }
-        //clear the message input box after it gets sent
-        message.value = "";
-      });
+      send.addEventListener('click', () => messageToSever(socket));
 
       window.onbeforeunload = () => {
         socket.emit('disconnect');
-      }
+      };
     };
 
     const init = () => {

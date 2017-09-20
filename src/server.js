@@ -44,8 +44,6 @@ const onJoined = (sock) => {
     };
     socket.broadcast.to('room1').emit('msg', res);
 
-    console.log(`${data.name} joined`);
-
     // emit msg to new user
     socket.emit('msg', {
       name: 'server',
@@ -103,14 +101,15 @@ const onMsg = (sock) => {
       } else {
         socket.emit('msg', {
           name: 'server',
-          msg: 'Invalid Command /help for a list of commands',
+          msg: utils.invalidCommand,
         });
       }
+      return;
     }
 
     io.sockets.in('room1').emit('msg', {
       name: socket.name,
-      msg: data.msg,
+      msg: data,
     });
   });
 };
@@ -128,8 +127,6 @@ const onDisconnect = (sock) => {
 };
 
 io.sockets.on('connection', (socket) => {
-  console.log('started');
-
   onJoined(socket);
   onMsg(socket);
   onDisconnect(socket);
