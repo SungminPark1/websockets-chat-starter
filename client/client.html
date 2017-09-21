@@ -53,6 +53,7 @@
 
     const connectSocket = (e) => {
       user = document.querySelector('#username').value;
+      const message = document.querySelector('#message');
 
       socket = io.connect();
 
@@ -69,6 +70,11 @@
       });
       // send message to server
       send.addEventListener('click', () => messageToSever(socket));
+      message.addEventListener('keypress', (e) => {
+        if (e.keyCode === 13 && message.value) {
+          messageToSever(socket);
+        } 
+      });
 
       window.onbeforeunload = () => {
         socket.emit('disconnect');
